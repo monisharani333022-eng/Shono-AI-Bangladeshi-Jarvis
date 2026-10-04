@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>শোনো AI — The Unlimited Bangladeshi Jarvis</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Hind+Siliguri:wght@400;600;700&family=Fira+Code:wght@400;600&display=swap');
+
+    :root {
+      --cyan-glow: #00f0ff;
+      --cyan-dim: #006680;
+      --bg-dark: #050b14;
+      --panel-bg: rgba(10, 25, 47, 0.8);
+      --border-glow: rgba(0, 240, 255, 0.35);
+    }
+
+    body {
+      font-family: 'Hind Siliguri', sans-serif;
+      background-color: var(--bg-dark);
+      color: #e0f7fa;
+      background-image: 
+        radial-gradient(circle at 50% 50%, rgba(0, 100, 150, 0.18) 0%, transparent 65%),
+        linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+      background-size: 100% 100%, 40px 40px, 40px 40px;
+    }
+
+    .font-hud {
+      font-family: 'Orbitron', monospace;
+      letter-spacing: 0.1em;
+    }
+
+    .font-mono-code {
+      font-family: 'Fira Code', monospace;
+    }
+
+    .glow-cyan {
+      box-shadow: 0 0 30px rgba(0, 240, 255, 0.45), inset 0 0 15px rgba(0, 240, 255, 0.25);
+    }
+
+    @keyframes spin-clockwise {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    @keyframes spin-counter {
+      from { transform: rotate(360deg); }
+      to { transform: rotate(0deg); }
+    }
+    @keyframes pulse-core {
+      0%, 100% { transform: scale(1); opacity: 0.85; filter: drop-shadow(0 0 15px #00f0ff); }
+      50% { transform: scale(1.08); opacity: 1; filter: drop-shadow(0 0 35px #00f0ff); }
+    }
+    @keyframes wave-scan {
+      0% { top: 0%; opacity: 0.8; }
+      100% { top: 100%; opacity: 0; }
+    }
+
+    .animate-spin-slow {
+      animation: spin-clockwise 24s linear infinite;
+    }
+    .animate-spin-reverse {
+      animation: spin-counter 16s linear infinite;
+    }
+    .animate-spin-fast {
+      animation: spin-clockwise 8s linear infinite;
+    }
+    .pulse-reactor {
+      animation: pulse-core 3s ease-in-out infinite;
+    }
+    .scanner-line {
+      position: absolute;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--cyan-glow), transparent);
+      animation: wave-scan 3s ease-in-out infinite;
+    }
+
+    .glass-panel {
+      background: var(--panel-bg);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-glow);
+    }
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #06101e;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #00f0ff44;
+      border-radius: 3px;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between p-3 md:p-6 overflow-x-hidden selection:bg-cyan-500 selection:text-black">
+
+  <!-- HUD Top Header -->
+  <header class="glass-panel rounded-2xl p-4 mb-4 flex flex-wrap items-center justify-between gap-4 border-cyan-500/30">
+    <div class="flex items-center gap-3">
+      <div class="relative w-10 h-10 flex items-center justify-center">
+        <div class="absolute inset-0 rounded-full border border-cyan-400 animate-ping opacity-30"></div>
+        <div class="w-8 h-8 rounded-full bg-cyan-500/20 border-2 border-cyan-400 flex items-center justify-center text-cyan-300 font-hud text-xs font-bold shadow-lg">
+          AI
+        </div>
+      </div>
+      <div>
+        <div class="flex items-center gap-2">
+          <h1 class="font-hud text-lg md:text-xl font-black text-cyan-300 tracking-wider">SHONO AI // শোনো</h1>
+          <span class="text-[10px] uppercase font-hud px-2 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400 text-cyan-300 font-bold">
+            UNLIMITED LLM ENGINE
+          </span>
+        </div>
+        <p class="text-xs text-cyan-100/70 font-mono-code">All-Topic Omniscient Intelligence • Bangladesh Dialect Aware</p>
+      </div>
+    </div>
+
+    <!-- AI Brain Key & Persona Selectors -->
+    <div class="flex flex-wrap items-center gap-3">
+      <!-- AI Brain Config Button -->
+      <button onclick="openKeyModal()" id="brain-config-btn" class="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-cyan-950/70 border border-cyan-400 hover:border-cyan-300 text-xs font-mono-code transition-all shadow-lg hover:shadow-cyan-500/30">
+        <span class="w-2 h-2 rounded-full bg-yellow-400" id="brain-led"></span>
+        <span class="text-cyan-200 font-bold" id="brain-status-label">🔑 AI BRAIN: CONNECT KEY</span>
+      </button>
+
+      <!-- Persona Switcher -->
+      <div class="flex items-center bg-black/50 rounded-xl p-1 border border-cyan-500/30">
+        <button id="persona-jarvis" onclick="setPersona('jarvis')" class="px-2.5 py-1 text-xs rounded-lg font-hud transition-all bg-cyan-500 text-black font-bold">
+          ⚡ জারভিস
+        </button>
+        <button id="persona-maya" onclick="setPersona('maya')" class="px-2.5 py-1 text-xs rounded-lg font-hud transition-all text-gray-400 hover:text-pink-300">
+          🌸 মায়া
+        </button>
+        <button id="persona-bondhu" onclick="setPersona('bondhu')" class="px-2.5 py-1 text-xs rounded-lg font-hud transition-all text-gray-400 hover:text-emerald-300">
+          🤝 বন্ধু
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Grid Workspace -->
+  <main class="grid grid-cols-1 lg:grid-cols-12 gap-5 flex-1 items-stretch">
+    
+    <!-- Left Panel: Dialect Spectrum & Sample Prompts across any subject -->
+    <section class="lg:col-span-3 glass-panel rounded-2xl p-4 flex flex-col justify-between gap-4 border-cyan-500/20">
+      <div>
+        <div class="flex items-center justify-between border-b border-cyan-500/20 pb-2 mb-3">
+          <h2 class="font-hud text-xs font-bold text-cyan-300 flex items-center gap-2">
+            <span class="w-2 h-2 bg-cyan-400 rounded-sm"></span>
+            DIALECTS & DIVERSE TOPICS
+          </h2>
+          <span class="text-[10px] text-cyan-200/50 font-mono-code">UNLIMITED</span>
+        </div>
+
+        <p class="text-xs text-gray-300 mb-3 leading-relaxed">
+          যেকোনো বিষয়ের প্রশ্ন (বিজ্ঞান, ইতিহাস, রান্না, কোডিং বা কৌতুক) ক্লিক করুন অথবা নিজের মুখে বলুন:
+        </p>
+
+        <!-- Diverse Topic Dialect Chips -->
+        <div class="space-y-2 text-xs">
+          <!-- Science in Chatgaya -->
+          <button onclick="askJarvis('চাটগাঁইয়া ভাষায় বলো: চাঁদের দেশে কি বাতাস আর পানি আছে?')" class="w-full text-left p-2 rounded-xl bg-cyan-950/40 hover:bg-cyan-900/50 border border-cyan-500/20 hover:border-cyan-400 transition-all group">
+            <div class="flex justify-between items-center text-[11px] font-bold text-cyan-300 mb-1">
+              <span>🚀 বিজ্ঞান (চাটগাঁইয়া)</span>
+              <span class="text-[9px] font-mono-code px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-200">CHITTAGONG</span>
+            </div>
+            <p class="text-gray-300 group-hover:text-white italic">"চাঁদের দেশে কি বাতাস আর পানি আছে?"</p>
+          </button>
+
+          <!-- Philosophy in Sylheti -->
+          <button onclick="askJarvis('সিলেটি ভাষায় বুঝিয়ে বলো: মানুষের জীবনের আসল উদ্দেশ্য কিতা?')" class="w-full text-left p-2 rounded-xl bg-cyan-950/40 hover:bg-cyan-900/50 border border-cyan-500/20 hover:border-cyan-400 transition-all group">
+            <div class="flex justify-between items-center text-[11px] font-bold text-cyan-300 mb-1">
+              <span>🧠 জীবন দর্শন (সিলেটি)</span>
+              <span class="text-[9px] font-mono-code px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-200">SYLHET</span>
+            </div>
+            <p class="text-gray-300 group-hover:text-white italic">"মানুষের জীবনের আসল উদ্দেশ্য কিতা?"</p>
+          </button>
+
+          <!-- Humor in Noakhailla -->
+          <button onclick="askJarvis('নোয়াখাইল্যা ভাষায় আমাকে একটা মজার কৌতুক শুনাও তো!')" class="w-full text-left p-2 rounded-xl bg-cyan-950/40 hover:bg-cyan-900/50 border border-cyan-500/20 hover:border-cyan-400 transition-all group">
+            <div class="flex justify-between items-center text-[11px] font-bold text-cyan-300 mb-1">
+              <span>😂 কৌতুক (নোয়াখাইল্যা)</span>
+              <span class="text-[9px] font-mono-code px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-200">NOAKHALI</span>
+            </div>
+            <p class="text-gray-300 group-hover:text-white italic">"আমাকে একটা মজার কৌতুক শুনাও তো!"</p>
+          </button>
+
+          <!-- Cooking in Barisailla -->
+          <button onclick="askJarvis('বরিশাইল্যা ভাষায় কও: খাঁটি ইলিশ মাছ ভুনা কেমনে রান্ধন লাগবো?')" class="w-full text-left p-2 rounded-xl bg-cyan-950/40 hover:bg-cyan-900/50 border border-cyan-500/20 hover:border-cyan-400 transition-all group">
+            <div class="flex justify-between items-center text-[11px] font-bold text-cyan-300 mb-1">
+              <span>🐟 রান্না রেসিপি (বরিশাইল্যা)</span>
+              <span class="text-[9px] font-mono-code px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-200">BARISHAL</span>
+            </div>
+            <p class="text-gray-300 group-hover:text-white italic">"খাঁটি ইলিশ মাছ ভুনা কেমনে রান্ধন লাগবো?"</p>
+          </button>
+
+          <!-- History in Dhakaiya -->
+          <button onclick="askJarvis('পুরান ঢাকাইয়া ভাষায় বলো: লালবাগের কেল্লা কে আর কেন বানাইছিল?')" class="w-full text-left p-2 rounded-xl bg-cyan-950/40 hover:bg-cyan-900/50 border border-cyan-500/20 hover:border-cyan-400 transition-all group">
+            <div class="flex justify-between items-center text-[11px] font-bold text-cyan-300 mb-1">
+              <span>🏰 ইতিহাস (ঢাকাইয়া)</span>
+              <span class="text-[9px] font-mono-code px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-200">OLD DHAKA</span>
+            </div>
+            <p class="text-gray-300 group-hover:text-white italic">"লালবাগের কেল্লা কে আর কেন বানাইছিল?"</p>
+          </button>
+
+          <!-- Tech in English -->
+          <button onclick="askJarvis('Explain Quantum Computing and Artificial Intelligence in simple terms like Jarvis!')" class="w-full text-left p-2 rounded-xl bg-cyan-950/40 hover:bg-cyan-900/50 border border-cyan-500/20 hover:border-cyan-400 transition-all group">
+            <div class="flex justify-between items-center text-[11px] font-bold text-cyan-300 mb-1">
+              <span>💻 Deep Tech (English)</span>
+              <span class="text-[9px] font-mono-code px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-200">GLOBAL</span>
+            </div>
+            <p class="text-gray-300 group-hover:text-white italic">"Explain Quantum Computing in simple terms!"</p>
+          </button>
+        </div>
+      </div>
+
+      <!-- Neural Dialect Detection Confidence -->
+      <div class="p-3 rounded-xl bg-black/60 border border-cyan-500/30 font-mono-code text-[11px]">
+        <div class="flex justify-between text-cyan-400 mb-1">
+          <span>DETECTED TOPIC & DIALECT:</span>
+          <span id="detected-dialect-tag" class="font-bold text-white uppercase">STANDBY</span>
+        </div>
+        <div class="w-full bg-cyan-950/60 rounded-full h-1.5 overflow-hidden">
+          <div id="confidence-bar" class="bg-gradient-to-r from-cyan-500 to-emerald-400 h-full w-0 transition-all duration-500"></div>
+        </div>
+        <div class="flex justify-between text-[10px] text-gray-400 mt-1">
+          <span>AI NEURAL ENGINE</span>
+          <span id="model-name-tag" class="text-emerald-400 font-bold">GEMINI 2.0 FLASH</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Center Panel: The Holographic Jarvis Arc Reactor & Core Visualization -->
+    <section class="lg:col-span-6 glass-panel rounded-2xl p-5 flex flex-col items-center justify-between relative overflow-hidden border-cyan-500/40">
+      <div class="scanner-line"></div>
+
+      <!-- Top HUD Telemetry -->
+      <div class="w-full flex justify-between items-center text-xs font-hud text-cyan-400/80 border-b border-cyan-500/20 pb-2">
+        <span class="flex items-center gap-1">
+          <span class="w-1.5 h-1.5 bg-cyan-400 rounded-full animate-pulse"></span>
+          SYS.NEURAL_STREAM // LIVE
+        </span>
+        <span id="current-time" class="font-mono-code text-cyan-300">18:45:00 BST</span>
+        <span class="text-cyan-500">UNLIMITED MODE</span>
+      </div>
+
+      <!-- Holographic Arc Reactor Visualizer -->
+      <div class="relative w-56 h-56 md:w-64 md:h-64 flex items-center justify-center my-3">
+        <div class="absolute inset-0 rounded-full border-2 border-dashed border-cyan-500/30 animate-spin-slow"></div>
+        <div class="absolute inset-3 rounded-full border border-cyan-400/40 animate-spin-reverse flex items-center justify-center">
+          <div class="absolute -top-1 w-2 h-2 bg-cyan-300 rounded-full shadow-[0_0_10px_#00f0ff]"></div>
+          <div class="absolute -bottom-1 w-2 h-2 bg-cyan-300 rounded-full shadow-[0_0_10px_#00f0ff]"></div>
+        </div>
+        <div class="absolute inset-8 rounded-full border-2 border-t-cyan-400 border-r-transparent border-b-cyan-500 border-l-transparent animate-spin-fast"></div>
+        
+        <canvas id="visualizer-canvas" class="absolute inset-10 rounded-full w-40 h-40 md:w-48 md:h-48 z-10"></canvas>
+
+        <button id="reactor-core-btn" onclick="toggleListening()" class="relative z-20 w-24 h-24 md:w-28 md:h-28 rounded-full bg-gradient-to-tr from-cyan-950 via-cyan-800 to-cyan-500 p-1 flex flex-col items-center justify-center cursor-pointer transition-transform transform hover:scale-105 active:scale-95 pulse-reactor glow-cyan group">
+          <div class="w-full h-full rounded-full bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center p-2 text-center border border-cyan-300/50">
+            <svg id="mic-icon" class="w-7 h-7 text-cyan-300 transition-colors group-hover:text-white" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.3-3c0 3-2.54 5.1-5.3 5.1S6.7 14 6.7 11H5c0 3.41 2.72 6.23 6 6.72V21h2v-3.28c3.28-.48 6-3.3 6-6.72h-1.7z"/>
+            </svg>
+            <span id="core-status-text" class="text-[9px] font-hud font-bold text-cyan-300 mt-1 uppercase tracking-widest">
+              TAP TO SPEAK
+            </span>
+          </div>
+        </button>
+      </div>
+
+      <!-- Live Transcribed Speech Banner -->
+      <div class="w-full bg-black/70 rounded-xl p-3 border border-cyan-500/30 text-center relative">
+        <div class="text-[10px] font-mono-code text-cyan-400/80 flex justify-center items-center gap-2 mb-1">
+          <span class="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+          <span id="live-speech-state">READY // পৃথিবীর যেকোনো বিষয়ে প্রশ্ন করুন বা মুখে বলুন...</span>
+        </div>
+        <p id="transcription-box" class="text-sm md:text-base text-cyan-100 font-semibold min-h-[1.5rem]">
+          "মাইকে কথা বলুন অথবা নিচের বক্সে যেকোনো প্রশ্ন টাইপ করুন"
+        </p>
+
+        <!-- Dynamic Thinking / Loading Spinner -->
+        <div id="thinking-indicator" class="hidden flex justify-center items-center gap-2 my-1 text-xs text-yellow-300 font-mono-code">
+          <span class="inline-block w-3 h-3 border-2 border-yellow-300 border-t-transparent rounded-full animate-spin"></span>
+          <span>জারভিস চিন্তা করছে ও রিয়েল-টাইম তথ্য সংগ্রহ করছে...</span>
+        </div>
+
+        <!-- Audio Output Wave Animation -->
+        <div id="voice-waves" class="hidden flex justify-center items-center gap-1 mt-2">
+          <span class="w-1 bg-cyan-400 h-2 animate-bounce"></span>
+          <span class="w-1 bg-cyan-400 h-5 animate-bounce [animation-delay:0.1s]"></span>
+          <span class="w-1 bg-cyan-400 h-8 animate-bounce [animation-delay:0.2s]"></span>
+          <span class="w-1 bg-cyan-400 h-4 animate-bounce [animation-delay:0.3s]"></span>
+          <span class="w-1 bg-cyan-400 h-7 animate-bounce [animation-delay:0.15s]"></span>
+          <span class="w-1 bg-cyan-400 h-3 animate-bounce [animation-delay:0.25s]"></span>
+        </div>
+      </div>
+
+      <!-- Dynamic Response Box -->
+      <div class="w-full mt-3 p-3.5 rounded-xl bg-cyan-950/40 border border-cyan-500/40 font-mono-code max-h-40 overflow-y-auto">
+        <div class="flex justify-between items-center text-xs text-cyan-300 font-hud mb-1">
+          <span class="flex items-center gap-1.5">
+            <span class="text-sm">⚡</span>
+            <span id="ai-name-label">JARVIS DYNAMIC RESPONSE:</span>
+          </span>
+          <button onclick="replayVoice()" class="text-[10px] text-cyan-400 hover:text-white underline">
+            পুনরায় শুনুন (Replay)
+          </button>
+        </div>
+        <p id="ai-reply-text" class="text-xs md:text-sm text-gray-200 leading-relaxed font-sans">
+          "আসসালামু আলাইকুম! আমি শোনো AI — আপনার নিজস্ব সীমাহীন জ্ঞানের অধিকারী সহকারী। বিজ্ঞান, দর্শন, সাহিত্য, প্রযুক্তি বা জীবনের যেকোনো বিষয়ে আমাকে প্রশ্ন করতে পারেন—যেকোনো ভাষায়!"
+        </p>
+      </div>
+
+      <!-- Text Chat Input Field for Instant Typing -->
+      <div class="w-full mt-3 flex items-center gap-2">
+        <input 
+          id="custom-text-input" 
+          type="text" 
+          placeholder="আপনার মনে যা প্রশ্ন আসে বাংলায় বা যেকোনো ভাষায় লিখুন..." 
+          onkeydown="if(event.key === 'Enter') submitTextInput()"
+          class="flex-1 bg-black/60 border border-cyan-500/40 focus:border-cyan-300 rounded-xl px-4 py-2.5 text-xs md:text-sm text-white placeholder-gray-500 outline-none transition-all"
+        />
+        <button onclick="submitTextInput()" class="px-4 py-2.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold font-hud text-xs transition-all shadow-lg hover:shadow-cyan-400/40 flex items-center gap-1">
+          <span>জিজ্ঞাসা</span>
+          <span>➤</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Right Panel: Android Phone Floating Bubble & System Execution Simulation -->
+    <section class="lg:col-span-3 glass-panel rounded-2xl p-4 flex flex-col justify-between gap-4 border-cyan-500/20">
+      <div>
+        <div class="flex items-center justify-between border-b border-cyan-500/20 pb-2 mb-3">
+          <h2 class="font-hud text-xs font-bold text-cyan-300 flex items-center gap-2">
+            <span class="w-2 h-2 bg-emerald-400 rounded-sm"></span>
+            ANDROID JARVIS OVERLAY
+          </h2>
+          <span class="text-[10px] text-emerald-400 font-mono-code">OVERLAY ACTIVE</span>
+        </div>
+
+        <p class="text-xs text-gray-300 mb-3">
+          যেটিই জিজ্ঞাসা করবেন, জারভিস সরাসরি উত্তর দিবে এবং ফোনে অ্যাকশন চালাবে:
+        </p>
+
+        <!-- Simulated Mobile Screen Frame -->
+        <div class="relative w-full h-64 rounded-2xl bg-slate-950 border-2 border-cyan-500/30 overflow-hidden shadow-2xl p-3 flex flex-col justify-between">
+          <div class="flex justify-between items-center text-[10px] text-gray-400 font-mono-code">
+            <span>Grameenphone 5G</span>
+            <div class="flex items-center gap-1">
+              <span>🔋 96%</span>
+              <span>📶</span>
+            </div>
+          </div>
+
+          <!-- Dummy App Behind -->
+          <div class="p-2.5 rounded-xl bg-blue-950/30 border border-blue-500/20 text-center my-auto">
+            <div class="w-7 h-7 mx-auto rounded-full bg-blue-600/30 flex items-center justify-center text-blue-400 text-xs font-bold mb-1">
+              f
+            </div>
+            <p class="text-[11px] text-gray-300 font-semibold">Facebook স্ক্রোলিং রানিং...</p>
+            <p class="text-[9px] text-gray-400" id="mobile-context-text">জারভিস ব্যাকগ্রাউন্ডে রেডি</p>
+          </div>
+
+          <!-- Simulated Floating Jarvis Bubble over the screen -->
+          <div class="relative flex items-center justify-end">
+            <div class="flex items-center gap-2">
+              <div id="bubble-speech-tooltip" class="hidden bg-cyan-900/90 text-cyan-100 text-[10px] p-2 rounded-xl border border-cyan-400 shadow-lg max-w-[150px] animate-fade-in font-sans">
+                "হুকুম করুন বস!"
+              </div>
+              <div onclick="triggerMobileBubbleClick()" class="w-11 h-11 rounded-full bg-gradient-to-tr from-cyan-600 to-cyan-300 p-0.5 shadow-[0_0_20px_#00f0ff] cursor-pointer transform hover:scale-110 active:scale-95 transition-all flex items-center justify-center animate-bounce [animation-duration:2.5s]">
+                <div class="w-full h-full rounded-full bg-black/80 flex items-center justify-center text-cyan-300 font-hud text-xs font-bold">
+                  ⚡
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-around items-center text-gray-500 text-xs pt-1 border-t border-gray-800">
+            <span>◀</span>
+            <span>●</span>
+            <span>■</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Action Execution Log -->
+      <div class="p-3 rounded-xl bg-black/60 border border-cyan-500/30 font-mono-code text-[11px]">
+        <div class="flex justify-between items-center text-cyan-400 mb-1 border-b border-gray-800 pb-1">
+          <span class="text-[10px] font-bold">NEURAL EXECUTION LOG //</span>
+          <span class="text-[9px] text-gray-500">LIVE</span>
+        </div>
+        <div id="execution-logs" class="space-y-1 text-[10px] text-gray-300 max-h-24 overflow-y-auto pr-1">
+          <p class="text-cyan-300">[SYS] Shono AI Kernel initialized.</p>
+          <p class="text-emerald-400">[NET] Gemini 2.0 Flash Engine Ready.</p>
+          <p class="text-gray-400">[AUDIO] Bengali / English Speech Engine active.</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- AI Brain API Key Configuration Modal -->
+  <div id="key-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="glass-panel max-w-lg w-full rounded-2xl p-6 border-cyan-400 shadow-[0_0_50px_rgba(0,240,255,0.3)] relative">
+      <div class="flex justify-between items-center border-b border-cyan-500/30 pb-3 mb-4">
+        <h3 class="font-hud text-base font-bold text-cyan-300 flex items-center gap-2">
+          ⚡ CONNECT FREE AI BRAIN (সীমাহীন জ্ঞান সক্রিয় করুন)
+        </h3>
+        <button onclick="closeKeyModal()" class="text-gray-400 hover:text-white text-lg">✕</button>
+      </div>
+
+      <p class="text-xs text-gray-300 leading-relaxed mb-4">
+        জারভিসকে পৃথিবীর <strong class="text-cyan-300">যেকোনো বিষয়ে সীমাহীন (Unlimited) জ্ঞানের</strong> অধিকারী করতে আপনার ফ্রি Google Gemini API Key কানেক্ট করুন। এটি <strong class="text-emerald-400">১০০% ফ্রি</strong>, কোনো ক্রেডিট কার্ড লাগে না!
+      </p>
+
+      <!-- 1-Click Free Key Guide -->
+      <div class="p-3 rounded-xl bg-cyan-950/50 border border-cyan-500/30 mb-4 text-xs space-y-2">
+        <div class="flex items-center justify-between">
+          <span class="text-cyan-200 font-bold">কীভাবে ২ মিনিটে ফ্রি কী (Key) পাবেন:</span>
+          <a href="https://aistudio.google.com/app/apikey" target="_blank" class="px-3 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold font-hud text-[11px] transition-all">
+            ফ্রি কী নিন (Google AI Studio) ↗
+          </a>
+        </div>
+        <ol class="list-decimal list-inside text-gray-300 space-y-1 text-[11px]">
+          <li>উপরের লিঙ্কে গিয়ে আপনার Gmail দিয়ে সাইন-ইন করুন।</li>
+          <li><strong>"Create API Key"</strong> বাটনে ক্লিক করে কী (Key) টি কপি করুন।</li>
+          <li>নিচের বক্সে পেস্ট করে <strong>"Save & Activate"</strong> চাপুন।</li>
+        </ol>
+      </div>
+
+      <!-- Key Input Form -->
+      <div class="space-y-3">
+        <div>
+          <label class="block text-[11px] font-hud text-cyan-300 mb-1">GOOGLE GEMINI API KEY (FREE TIER):</label>
+          <input 
+            id="gemini-key-input" 
+            type="password" 
+            placeholder="AIzaSy..." 
+            class="w-full bg-black/70 border border-cyan-500/50 focus:border-cyan-300 rounded-xl px-3 py-2 text-xs text-white font-mono-code outline-none"
+          />
+        </div>
+
+        <div class="flex items-center justify-between pt-2">
+          <button onclick="clearSavedKey()" class="text-xs text-red-400 hover:text-red-300 underline font-mono-code">
+            কী রিমুভ করুন
+          </button>
+          <div class="flex gap-2">
+            <button onclick="closeKeyModal()" class="px-4 py-1.5 rounded-xl bg-gray-800 text-gray-300 text-xs hover:bg-gray-700">
+              বাতিল
+            </button>
+            <button onclick="saveApiKey()" class="px-5 py-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-black font-bold font-hud text-xs shadow-lg shadow-cyan-500/40">
+              SAVE & ACTIVATE
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bottom Footer -->
+  <footer class="glass-panel rounded-xl p-3 mt-4 flex flex-wrap items-center justify-between text-xs text-gray-400 font-mono-code border-cyan-500/20">
+    <div>
+      <span class="text-cyan-400 font-bold">SHONO AI</span> — Unlimited Real-Time AI Intelligence. Powered by Google Gemini 2.0 Flash.
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="text-emerald-400">● Full Free Zero-Cost Tier</span>
+      <span>•</span>
+      <button onclick="openKeyModal()" class="text-cyan-300 hover:underline">⚙️ AI Settings</button>
+    </div>
+  </footer>
+
+  <!-- Script Engine: Google Gemini LLM, Dialects & Web Speech -->
+  <script>
+    // --- Global State ---
+    let currentPersona = 'jarvis';
+    let isListening = false;
+    let recognition = null;
+    let lastSpokenText = "";
+    let synth = window.speechSynthesis;
+    let audioContext = null;
+    let isGenerating = false;
+
+    // Load API Key from local storage
+    let geminiApiKey = localStorage.getItem('shono_gemini_api_key') || '';
+
+    // Update UI Key status on load
+    function updateKeyStatusUI() {
+      const led = document.getElementById('brain-led');
+      const label = document.getElementById('brain-status-label');
+      const keyInput = document.getElementById('gemini-key-input');
+      
+      if (geminiApiKey && geminiApiKey.trim().length > 10) {
+        led.className = 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse';
+        label.innerText = '🟢 AI BRAIN: CONNECTED (GEMINI 2.0)';
+        keyInput.value = geminiApiKey;
+      } else {
+        led.className = 'w-2 h-2 rounded-full bg-yellow-400 animate-bounce';
+        label.innerText = '🔑 AI BRAIN: CONNECT FREE KEY';
+      }
+    }
+
+    function openKeyModal() {
+      document.getElementById('key-modal').classList.remove('hidden');
+    }
+    function closeKeyModal() {
+      document.getElementById('key-modal').classList.add('hidden');
+    }
+
+    function saveApiKey() {
+      const key = document.getElementById('gemini-key-input').value.trim();
+      if (!key) {
+        alert('অনুগ্রহ করে একটি সঠিক Gemini API Key দিন!');
+        return;
+      }
+      geminiApiKey = key;
+      localStorage.setItem('shono_gemini_api_key', key);
+      updateKeyStatusUI();
+      closeKeyModal();
+      addLog('Google Gemini 2.0 Flash API Key saved and activated!', 'text-emerald-400');
+      playSciFiChime('success');
+      speakText('এআই ব্রেন সফলভাবে কানেক্ট হয়েছে! এখন আপনি যেকোনো বিষয়ে আমাকে প্রশ্ন করতে পারেন।');
+    }
+
+    function clearSavedKey() {
+      localStorage.removeItem('shono_gemini_api_key');
+      geminiApiKey = '';
+      document.getElementById('gemini-key-input').value = '';
+      updateKeyStatusUI();
+      addLog('API Key cleared.', 'text-yellow-400');
+      closeKeyModal();
+    }
+
+    // --- Sound FX Synthesis ---
+    function playSciFiChime(type = 'activate') {
+      try {
+        if (!audioContext) {
+          audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        const osc = audioContext.createOscillator();
+        const gain = audioContext.createGain();
+        osc.connect(gain);
+        gain.connect(audioContext.destination);
+
+        const now = audioContext.currentTime;
+        if (type === 'activate') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.exponentialRampToValueAtTime(880, now + 0.15);
+          osc.frequency.exponentialRampToValueAtTime(1320, now + 0.3);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+          osc.start(now);
+          osc.stop(now + 0.35);
+        } else if (type === 'success') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(587.33, now);
+          osc.frequency.exponentialRampToValueAtTime(880, now + 0.2);
+          gain.gain.setValueAtTime(0.2, now);
+          gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+          osc.start(now);
+          osc.stop(now + 0.25);
+        }
+      } catch (e) {}
+    }
+
+    setInterval(() => {
+      const now = new Date();
+      document.getElementById('current-time').innerText = 
+        now.toLocaleTimeString('en-US', { hour12: false }) + ' BST';
+    }, 1000);
+
+    function addLog(text, color = 'text-cyan-300') {
+      const box = document.getElementById('execution-logs');
+      const p = document.createElement('p');
+      p.className = color;
+      const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+      p.innerText = `[${time}] ${text}`;
+      box.prepend(p);
+      if (box.children.length > 20) box.removeChild(box.lastChild);
+    }
+
+    // --- Canvas Visualizer Animation ---
+    const canvas = document.getElementById('visualizer-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = 220;
+    canvas.height = 220;
+    let waveOffset = 0;
+
+    function drawVisualizer() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      const numBars = 48;
+      const radius = 60;
+
+      for (let i = 0; i < numBars; i++) {
+        const angle = (i / numBars) * Math.PI * 2;
+        let barHeight = 6;
+        if (isListening) {
+          barHeight = 15 + Math.sin(waveOffset + i * 0.5) * 20 + Math.random() * 10;
+        } else if (isGenerating) {
+          barHeight = 10 + Math.sin(waveOffset * 2 + i) * 12;
+        } else if (document.getElementById('voice-waves').classList.contains('flex')) {
+          barHeight = 12 + Math.cos(waveOffset + i * 0.7) * 15;
+        } else {
+          barHeight = 5 + Math.sin(waveOffset * 0.5 + i * 0.3) * 3;
+        }
+
+        const x1 = centerX + Math.cos(angle) * radius;
+        const y1 = centerY + Math.sin(angle) * radius;
+        const x2 = centerX + Math.cos(angle) * (radius + barHeight);
+        const y2 = centerY + Math.sin(angle) * (radius + barHeight);
+
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.strokeStyle = (currentPersona === 'maya') 
+          ? 'rgba(255, 0, 128, 0.75)' 
+          : (currentPersona === 'bondhu') 
+            ? 'rgba(16, 185, 129, 0.75)' 
+            : 'rgba(0, 240, 255, 0.85)';
+        ctx.lineWidth = 2.2;
+        ctx.stroke();
+      }
+
+      waveOffset += 0.08;
+      requestAnimationFrame(drawVisualizer);
+    }
+    drawVisualizer();
+
+    // --- Persona Switcher ---
+    function setPersona(persona) {
+      currentPersona = persona;
+      const btnJarvis = document.getElementById('persona-jarvis');
+      const btnMaya = document.getElementById('persona-maya');
+      const btnBondhu = document.getElementById('persona-bondhu');
+      const nameLabel = document.getElementById('ai-name-label');
+
+      btnJarvis.className = 'px-2.5 py-1 text-xs rounded-lg font-hud transition-all text-gray-400 hover:text-cyan-300';
+      btnMaya.className = 'px-2.5 py-1 text-xs rounded-lg font-hud transition-all text-gray-400 hover:text-pink-300';
+      btnBondhu.className = 'px-2.5 py-1 text-xs rounded-lg font-hud transition-all text-gray-400 hover:text-emerald-300';
+
+      if (persona === 'jarvis') {
+        btnJarvis.className = 'px-2.5 py-1 text-xs rounded-lg font-hud transition-all bg-cyan-500 text-black font-bold';
+        nameLabel.innerText = 'JARVIS DYNAMIC RESPONSE:';
+        document.documentElement.style.setProperty('--cyan-glow', '#00f0ff');
+        addLog('Persona changed to: JARVIS (Sci-Fi Male Voice)');
+      } else if (persona === 'maya') {
+        btnMaya.className = 'px-2.5 py-1 text-xs rounded-lg font-hud transition-all bg-pink-500 text-white font-bold';
+        nameLabel.innerText = 'MAYA DYNAMIC RESPONSE:';
+        document.documentElement.style.setProperty('--cyan-glow', '#ff0080');
+        addLog('Persona changed to: MAYA (Friendly Female Voice)');
+      } else if (persona === 'bondhu') {
+        btnBondhu.className = 'px-2.5 py-1 text-xs rounded-lg font-hud transition-all bg-emerald-500 text-black font-bold';
+        nameLabel.innerText = 'BONDHU DYNAMIC RESPONSE:';
+        document.documentElement.style.setProperty('--cyan-glow', '#10b981');
+        addLog('Persona changed to: BONDHU (Empathetic Brotherly Voice)');
+      }
+      playSciFiChime('success');
+    }
+
+    // --- Voice Synthesis Engine ---
+    function speakText(text) {
+      if (!synth) return;
+      synth.cancel();
+
+      // Strip markdown symbols before speaking
+      const cleanText = text.replace(/[*_#`~[\]]/g, '').trim();
+
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      const voices = synth.getVoices();
+      const banglaVoice = voices.find(v => v.lang.includes('bn') || v.lang.includes('BD'));
+      if (banglaVoice) utterance.voice = banglaVoice;
+
+      if (currentPersona === 'jarvis') {
+        utterance.pitch = 0.88;
+        utterance.rate = 1.05;
+      } else if (currentPersona === 'maya') {
+        utterance.pitch = 1.3;
+        utterance.rate = 1.0;
+      } else {
+        utterance.pitch = 1.0;
+        utterance.rate = 1.08;
+      }
+
+      const waves = document.getElementById('voice-waves');
+      waves.classList.remove('hidden');
+      waves.classList.add('flex');
+
+      utterance.onend = () => {
+        waves.classList.add('hidden');
+        waves.classList.remove('flex');
+        document.getElementById('live-speech-state').innerText = 'STANDBY // সম্পূর্ণ প্রস্তুত';
+      };
+
+      synth.speak(utterance);
+    }
+
+    function replayVoice() {
+      if (lastSpokenText) {
+        speakText(lastSpokenText);
+        addLog('Voice replay triggered.');
+      }
+    }
+
+    // --- REAL UNLIMITED AI BRAIN CALL (Google Gemini 2.0 / 1.5 Flash) ---
+    async function queryUnlimitedGemini(userQuery) {
+      isGenerating = true;
+      document.getElementById('thinking-indicator').classList.remove('hidden');
+      document.getElementById('live-speech-state').innerText = 'NEURAL REASONING // চিন্তা করছি...';
+
+      let personaInstruction = "";
+      if (currentPersona === 'jarvis') {
+        personaInstruction = "You are Jarvis BD, a futuristic, ultra-intelligent Bangladeshi AI voice assistant like Iron Man's Jarvis. You have encyclopedic knowledge of science, history, philosophy, code, lifestyle, cooking, politics, religion, pop culture, and everything in the universe.";
+      } else if (currentPersona === 'maya') {
+        personaInstruction = "You are Maya, a warm, polite, highly intelligent Bangladeshi female AI assistant. You speak with gentleness, clarity, and deep knowledge on any topic.";
+      } else {
+        personaInstruction = "You are Bondhu, an energetic, friendly brotherly AI assistant from Bangladesh. You give practical, wise, and witty advice like an elder brother.";
+      }
+
+      const systemPrompt = `${personaInstruction}
+CRITICAL RULES FOR DIALECT & CONVERSATION:
+1. ALWAYS DETECT THE USER'S INTENDED DIALECT OR REGION:
+   - If user speaks or asks in Chittagonian / Chatgaya (চাটগাঁইয়া), respond in natural Chittagonian dialect! (e.g. ক্যান আছন, গম লাগের, আঁই, বদ্দা, হত টেয়া, ইত্যাদি)।
+   - If user speaks in Sylheti (সিলেটি), respond in natural Sylheti dialect! (e.g. কিতা খবর, বালা আছনি, মাতইন, ইত্যাদি)।
+   - If user speaks in Noakhailla (নোয়াখাইল্যা), respond in authentic Noakhailla dialect! (e.g. হনেন ভাই, আঁই হেতে যাইতাম ন, ইত্যাদি)।
+   - If user speaks in Barisailla (বরিশাইল্যা), respond in classic Barisal dialect! (e.g. হুনেন দেহি মনু, মোগো বরিশাল, কিয়ের লাইগা, ইত্যাদি)।
+   - If user speaks in Dhakaiya (পুরান ঢাকাইয়া), respond in authentic Dhakaiya slang! (e.g. আরে মামুর বেটা, চিল মারো, ইত্যাদি)।
+   - If user speaks in Rangpuri (রংপুরী), respond in Rangpuri dialect! (e.g. বাহে কেমন আছেন, মুই জানং, ইত্যাদি)।
+   - If user speaks in Standard Bengali (শুদ্ধ বাংলা), respond in sharp, witty Standard Bengali!
+   - If user speaks in English, respond in sharp, articulate English!
+2. Answer the user's specific question completely, truthfully, and intelligently on ANY topic.
+3. Keep spoken replies concise (2 to 4 crisp sentences) so it sounds like a real voice assistant, unless the user explicitly requested a long essay or code snippet.
+4. Output ONLY the response text to be spoken.`;
+
+      // Fallback offline dynamic answer generator if no API key is provided yet
+      if (!geminiApiKey) {
+        await new Promise(r => setTimeout(r, 1000)); // Simulate thinking
+        isGenerating = false;
+        document.getElementById('thinking-indicator').classList.add('hidden');
+        
+        return `আপনার প্রশ্ন: "${userQuery}"। পৃথিবীর যেকোনো বিষয়ে সীমাহীন উত্তর পেতে উপরে '🔑 AI Brain: Connect Key' বাটনে ক্লিক করে ফ্রি Google Gemini API Key কানেক্ট করুন (এটি ১০০% ফ্রি এবং ১ মিনিটে নেওয়া যায়)!`;
+      }
+
+      try {
+        const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${geminiApiKey.trim()}`;
+        
+        const payload = {
+          contents: [
+            {
+              role: "user",
+              parts: [
+                { text: `${systemPrompt}\n\nUser Question: "${userQuery}"` }
+              ]
+            }
+          ],
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 350
+          }
+        };
+
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+
+        if (data.error) {
+          console.error("Gemini API Error:", data.error);
+          isGenerating = false;
+          document.getElementById('thinking-indicator').classList.add('hidden');
+          return `Gemini API ত্রুটি: ${data.error.message || 'কী চেক করুন'}`;
+        }
+
+        const candidateText = data.candidates?.[0]?.content?.parts?.[0]?.text || "দুঃখিত, কোনো উত্তর পাওয়া যায়নি।";
+        isGenerating = false;
+        document.getElementById('thinking-indicator').classList.add('hidden');
+        return candidateText.trim();
+
+      } catch (err) {
+        console.error("Network Error:", err);
+        isGenerating = false;
+        document.getElementById('thinking-indicator').classList.add('hidden');
+        return `সার্ভার সংযোগ সমস্যা: ${err.message}`;
+      }
+    }
+
+    // --- Core Action & Query Dispatcher ---
+    async function askJarvis(query) {
+      if (!query || query.trim().length === 0) return;
+      playSciFiChime('activate');
+
+      document.getElementById('transcription-box').innerText = `"${query}"`;
+      document.getElementById('mobile-context-text').innerText = `প্রশ্ন: ${query.substring(0, 20)}...`;
+      addLog(`Prompt: "${query}"`, 'text-cyan-200');
+
+      // Update dialect radar estimation
+      const lower = query.toLowerCase();
+      let detectedName = "প্রমিত বাংলা / General";
+      if (lower.includes('চাটগাঁ') || lower.includes('গম') || lower.includes('আঁই') || lower.includes('ক্যান আছন')) detectedName = "চাটগাঁইয়া (Chatgaya)";
+      else if (lower.includes('সিলট') || lower.includes('কিতা') || lower.includes('বালা') || lower.includes('মাত')) detectedName = "সিলেটি (Sylheti)";
+      else if (lower.includes('নোয়াখালি') || lower.includes('হনেন') || lower.includes('হেতে') || lower.includes('নুয়াখালি')) detectedName = "নোয়াখাইল্যা (Noakhailla)";
+      else if (lower.includes('বরিশাল') || lower.includes('মোগো') || lower.includes('হুনেন') || lower.includes('মনু')) detectedName = "বরিশাইল্যা (Barisailla)";
+      else if (lower.includes('ঢাকাইয়া') || lower.includes('মামুর বেটা') || lower.includes('চকবাজার')) detectedName = "পুরান ঢাকাইয়া (Dhakaiya)";
+      else if (lower.includes('রংপুর') || lower.includes('বাহে') || lower.includes('মুই')) detectedName = "রংপুরী (Rangpuri)";
+      else if (/^[a-zA-Z0-9\s.,?!]+$/.test(query)) detectedName = "Global English";
+
+      document.getElementById('detected-dialect-tag').innerText = detectedName;
+      document.getElementById('confidence-bar').style.width = '99.2%';
+
+      // Call the unlimited intelligence engine
+      const reply = await queryUnlimitedGemini(query);
+
+      document.getElementById('ai-reply-text').innerText = `"${reply}"`;
+      lastSpokenText = reply;
+
+      // Speak back
+      speakText(reply);
+
+      // Tooltip for mobile overlay
+      const tooltip = document.getElementById('bubble-speech-tooltip');
+      tooltip.innerText = reply.substring(0, 45) + '...';
+      tooltip.classList.remove('hidden');
+      setTimeout(() => tooltip.classList.add('hidden'), 6000);
+
+      addLog(`AI Answer generated successfully [${detectedName}]`, 'text-emerald-400');
+    }
+
+    function submitTextInput() {
+      const input = document.getElementById('custom-text-input');
+      const val = input.value.trim();
+      if (val) {
+        askJarvis(val);
+        input.value = '';
+      }
+    }
+
+    // --- Speech Recognition ---
+    function initSpeech() {
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SpeechRecognition) {
+        addLog('Web Speech API not supported in this browser. Use text input.', 'text-yellow-400');
+        return;
+      }
+
+      recognition = new SpeechRecognition();
+      recognition.lang = 'bn-BD';
+      recognition.continuous = false;
+      recognition.interimResults = true;
+
+      recognition.onstart = () => {
+        isListening = true;
+        playSciFiChime('activate');
+        document.getElementById('core-status-text').innerText = 'LISTENING...';
+        document.getElementById('live-speech-state').innerText = 'RECEIVING AUDIO // আপনার কণ্ঠ শুনছি...';
+        document.getElementById('mic-icon').classList.add('text-red-400');
+        addLog('Mic listening stream active.', 'text-emerald-400');
+      };
+
+      recognition.onresult = (event) => {
+        let transcript = '';
+        for (let i = event.resultIndex; i < event.results.length; i++) {
+          transcript += event.results[i][0].transcript;
+        }
+        document.getElementById('transcription-box').innerText = `"${transcript}"`;
+        if (event.results[0].isFinal) {
+          askJarvis(transcript);
+        }
+      };
+
+      recognition.onerror = (e) => {
+        console.error('Speech error:', e);
+        stopListening();
+        addLog(`Mic status: ${e.error || 'Check permissions'}`, 'text-red-400');
+      };
+
+      recognition.onend = () => {
+        stopListening();
+      };
+    }
+
+    function toggleListening() {
+      if (isListening) {
+        stopListening();
+      } else {
+        startListening();
+      }
+    }
+
+    function startListening() {
+      if (!recognition) initSpeech();
+      if (recognition) {
+        try { recognition.start(); } catch (err) {}
+      } else {
+        alert('আপনার ব্রাউজারে মাইক সাপোর্ট নেই। আপনি টেক্সট বক্সে যেকোনো প্রশ্ন টাইপ করতে পারেন!');
+      }
+    }
+
+    function stopListening() {
+      isListening = false;
+      if (recognition) {
+        try { recognition.stop(); } catch (e) {}
+      }
+      document.getElementById('core-status-text').innerText = 'TAP TO SPEAK';
+      document.getElementById('mic-icon').classList.remove('text-red-400');
+    }
+
+    function triggerMobileBubbleClick() {
+      playSciFiChime('activate');
+      const tooltip = document.getElementById('bubble-speech-tooltip');
+      tooltip.innerText = "জি বস! যেকোনো বিষয়ে হুকুম করুন!";
+      tooltip.classList.remove('hidden');
+      speakText("জি বস! আপনার কি হুকুম? যেকোনো বিষয়ে জানতে আমাকে বলুন।");
+      setTimeout(() => tooltip.classList.add('hidden'), 4000);
+      addLog('Android Overlay Bubble tapped.');
+    }
+
+    window.addEventListener('load', () => {
+      initSpeech();
+      updateKeyStatusUI();
+      if (synth) synth.getVoices();
+    });
+  </script>
+</body>
+</html>
