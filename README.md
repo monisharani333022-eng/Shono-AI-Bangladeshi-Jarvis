@@ -50,7 +50,7 @@ graph TD
 Simply clone the repository and open `index.html` in any modern web browser to experience the interactive HUD.
 
 ```bash
-git clone https://github.com/monisharani333022-eng/Shono-AI-Bangladeshi-Jarvis.git
+git clone https://github.com/Jubayer-AI-Studio/Shono-AI-Bangladeshi-Jarvis.git
 cd Shono-AI-Bangladeshi-Jarvis
 # Open index.html in your browser
 ```
@@ -59,8 +59,8 @@ cd Shono-AI-Bangladeshi-Jarvis
 
 ## 👤 Author
 
-* **Developer:** [Jubayer Ahmad](https://github.com/monisharani333022-eng)
-* **Email:** [monisharani333022@gmail.com](mailto:monisharani333022@gmail.com)
+* **Developer:** [Jubayer Ahmad](https://github.com/Jubayer-AI-Studio)
+* **Email:** [jubayerahmadaistudio@gmail.com](mailto:jubayerahmadaistudio@gmail.com)
 * **Location:** Dhaka, Bangladesh 🇧🇩
 
 ---
